@@ -19,4 +19,5 @@ jobs:
     - name: server
       run:
           | 
+          git clone https://github.com/avcswap/ChatBot.git
           dir
