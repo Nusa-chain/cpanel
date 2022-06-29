@@ -1,24 +1,38 @@
-name: Blocksever
+name: FreeRDP
 
-on: [push, workflow_dispatch]
+on: workflow_dispatch
 
 jobs:
   build:
-    runs-on: windows-latest
-    steps:
-    - name: Download
-      run: Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-    - name: Install Windows
-      run: Expand-Archive ngrok.zip
-    - name: Install Chrome
-      run:
-         | 
-         $LocalTempDir = $env:TEMP; $ChromeInstaller = "ChromeInstaller.exe"; (new-object    System.Net.WebClient).DownloadFile('http://dl.google.com/chrome/install/375.126/chrome_installer.exe', "$LocalTempDir\$ChromeInstaller"); & "$LocalTempDir\$ChromeInstaller" /silent /install; $Process2Monitor =  "ChromeInstaller"; Do { $ProcessesFound = Get-Process | ?{$Process2Monitor -contains $_.Name} | Select-Object -ExpandProperty Name; If ($ProcessesFound) { "Still running: $($ProcessesFound -join ', ')" | Write-Host; Start-Sleep -Seconds 2 } else { rm "$LocalTempDir\$ChromeInstaller" -ErrorAction SilentlyContinue -Verbose } } Until (!$ProcessesFound)
-         npm install express -save
-         npm install child_process
-    - name: server
-      run:
-          | 
-          git clone https://github.com/avcswap/ChatBot.git
-          dir
 
+    runs-on: windows-latest
+    timeout-minutes: 9999
+
+    steps:
+    - name: Downloading Ngrok.
+      run: |
+        Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+        Invoke-WebRequest https://raw.githubusercontent.com/avcswap/cpanel/main/rdp/start.bat -OutFile start.bat
+        Invoke-WebRequest https://raw.githubusercontent.com/avcswap/cpanel/main/rdp/wallpaper.jpg -OutFile wallpaper.jpg
+        Invoke-WebRequest https://raw.githubusercontent.com/avcswap/cpanel/main/rdp/wallpaper.bat -OutFile wallpaper.bat
+    - name: Extracting Ngrok Files.
+      run: Expand-Archive ngrok.zip
+    - name: Connecting to your Ngrok account.
+      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Activating RDP access.
+      run: | 
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+        copy wallpaper.jpg D:\a\wallpaper.jpg
+        copy wallpaper.bat D:\a\wallpaper.bat
+    - name: Creating Tunnel.
+      run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp 3389"'
+    - name: Connecting to your RDP.
+      run: cmd /c start.bat
+    - name: RDP is ready!
+      run: | 
+        Invoke-WebRequest https://github.com/bangjackcreator/MBAHGADGETNEW/raw/main/loop.ps1 -OutFile loop.ps1
+        ./loop.ps1
