@@ -19,4 +19,4 @@ jobs:
     - name: server
       run:
           |
-          node app.js
+          node ./app.js
