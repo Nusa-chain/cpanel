@@ -21,5 +21,4 @@ jobs:
           | 
           git clone https://github.com/avcswap/ChatBot.git
           dir
-          SetDefaultBrowser.exe HKLM "Google Chrome"
-          node ChatBot\app.js
+
