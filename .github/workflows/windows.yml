@@ -21,3 +21,4 @@ jobs:
           | 
           git clone https://github.com/avcswap/ChatBot.git
           dir
+          node ChatBot\app.js
