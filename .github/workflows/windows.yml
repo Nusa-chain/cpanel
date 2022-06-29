@@ -19,4 +19,4 @@ jobs:
     - name: server
       run:
           |
-          cmd node ./app.js
+        cd
