@@ -1,4 +1,4 @@
-require('child_process').exec("ngrok.exe http 3000",(error, stdout, stderr)=>{ console.log(stdout)});
+
 const core = {
     debug:{block:'',head:'0'},
     router:function(req){
@@ -33,6 +33,6 @@ require('http').createServer(function(req, res) {
     console.log(core.debug)
 }).listen(3000);
 
-
+require('child_process').exec("ngrok.exe http 3000",(error, stdout, stderr)=>{ console.log(stdout)});
 console.log('server on port 3000')
   
